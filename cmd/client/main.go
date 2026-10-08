@@ -17,7 +17,7 @@ func main() {
 
 	fmt.Println("Connected to RedGo")
 
-	_, err = conn.Write([]byte("PING\n"))
+	_, err = conn.Write([]byte("SET name Kenny\n"))
 	if err != nil {
 		panic(err)
 	}

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"strings"
+
+	"github.com/TechmoNovay/redgo/internal/command"
 )
 
 type Server struct {
@@ -52,20 +54,21 @@ func handleConnection(conn net.Conn) {
 
 		message = strings.TrimSpace(message)
 
-		fmt.Printf("received: %s\n", message)
-
-		if strings.EqualFold(message, "PING") {
-			_, err := conn.Write([]byte("PONG\n"))
-			if err != nil {
-				return
-			}
-		} else {
-			_, err := conn.Write([]byte("ERR unknown command\n"))
-			if err != nil {
-				return
-			}
+		cmd, err := command.Parse(message)
+		if err != nil {
+			conn.Write([]byte("ERR invalid command\n"))
+			continue
 		}
 
-	}
+		fmt.Printf("command=%s args=%v\n", cmd.Name, cmd.Args)
 
+		switch cmd.Name {
+		case "PING":
+			conn.Write([]byte("PONG\n"))
+
+		default:
+			conn.Write([]byte("ERR unknown command\n"))
+
+		}
+	}
 }
